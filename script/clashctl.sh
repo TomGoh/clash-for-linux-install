@@ -202,6 +202,25 @@ function clashtun() {
     esac
 }
 
+function clashsub() {
+    case "$1" in
+    add)
+        _sub_add
+        ;;
+    del)
+        _sub_del
+        ;;
+    update)
+    # --auto
+    # --convert 
+    _sub_update "$@"
+        ;;
+    log)
+        _sub_log
+        ;;
+    esac
+}
+
 function clashupdate() {
     local url=$(cat "$CLASH_CONFIG_URL")
     local is_auto
@@ -297,9 +316,9 @@ function clashctl() {
         shift
         clashsecret "$@"
         ;;
-    update)
+    sub)
         shift
-        clashupdate "$@"
+        clashsub "$@"
         ;;
     *)
         shift
@@ -323,7 +342,12 @@ Commands:
     tun      [on|off]       Tun 模式
     mixin    [-e|-r]        Mixin 配置
     secret   [SECRET]       Web 密钥
-    update   [auto|log]     更新订阅
+    sub      
+        add
+        del
+        list
+        update
+        log
 
 EOF
 }
