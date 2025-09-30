@@ -205,20 +205,67 @@ function clashtun() {
 function clashsub() {
     case "$1" in
     add)
-        _sub_add
+        shift
+        _sub_add "$@"
         ;;
     del)
-        _sub_del
+        shift
+        _sub_del "$@"
+        ;;
+    list)
+        shift
+        _sub_list "$@"
         ;;
     update)
-    # --auto
-    # --convert 
-    _sub_update "$@"
+        # --auto
+        # --convert
+        shift
+        _sub_update "$@"
         ;;
     log)
+        shift
         _sub_log
         ;;
     esac
+}
+
+_sub_add() {
+    local url=$1
+    [ -z "$url" ] && {
+        echo -n "$(_okcat '✈️ ' '请输入要添加的订阅：')"
+        read -r url
+    }
+    [ -z "$url" ] && _error_quit "订阅链接不能为空"
+
+    grep -qsFx "$url" "$CLASH_CONFIG_URL" && {
+        _failcat "该链接已存在"
+        return 1
+    }
+
+    echo "$url" | sudo tee -a "$CLASH_CONFIG_URL" >&/dev/null
+    _okcat "添加成功"
+}
+
+_sub_del() {
+    local id=$1
+    [ -z "$id" ] && {
+        echo -n "$(_okcat '✈️ ' '请输入要删除的订阅序号：')"
+        read -r id
+    }
+    [ -z "$id" ] && _error_quit "序号不能为空"
+    sed -i "${id}d" "$CLASH_CONFIG_URL" && _okcat "删除成功"
+}
+
+_sub_list() {
+    [ -f "$CLASH_CONFIG_URL" ] || {
+        _failcat "当前未配置订阅链接"
+        return
+    }
+    n=0
+    while IFS= read -r line || [[ -n $line ]]; do
+        n=$((n + 1))
+        echo "$n) $line"
+    done <"$CLASH_CONFIG_URL"
 }
 
 function clashupdate() {
@@ -347,7 +394,6 @@ Commands:
         del
         list
         update
-        auto
         log
 
 EOF
