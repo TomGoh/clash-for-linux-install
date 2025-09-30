@@ -347,6 +347,7 @@ Commands:
         del
         list
         update
+        auto
         log
 
 EOF
