@@ -62,7 +62,7 @@ _set_var() {
 
     # 定时任务路径
     local os_info=$(cat /etc/os-release)
-    echo "$os_info" | grep -iqsE "rhel|centos" && CLASH_CRON_TAB="/var/spool/cron/$user"
+    echo "$os_info" | grep -iqsE "rhel|centos|openEuler|Rocky|AlmaLinux" && CLASH_CRON_TAB="/var/spool/cron/$user"
     echo "$os_info" | grep -iqsE "debian|ubuntu" && CLASH_CRON_TAB="/var/spool/cron/crontabs/$user"
 }
 _set_var
@@ -229,7 +229,6 @@ function _is_root() {
 
 function _valid_env() {
     _is_root || _error_quit "需要 root 或 sudo 权限执行"
-    [ -n "$ZSH_VERSION" ] && [ -n "$BASH_VERSION" ] && _error_quit "仅支持：bash、zsh"
     [ "$(ps -p 1 -o comm=)" != "systemd" ] && _error_quit "系统不具备 systemd"
 }
 
@@ -280,6 +279,7 @@ _download_clash() {
         --show-error \
         --fail \
         --insecure \
+        --location \
         --connect-timeout 5 \
         --max-time 15 \
         --retry 1 \
@@ -297,6 +297,7 @@ _download_raw_config() {
         --silent \
         --show-error \
         --insecure \
+        --location \
         --max-time 5 \
         --retry 1 \
         --user-agent "$agent" \
@@ -321,6 +322,7 @@ _download_convert_config() {
         curl \
             --get \
             --silent \
+            --location \
             --output /dev/null \
             --data-urlencode "target=$target" \
             --data-urlencode "url=$url" \
